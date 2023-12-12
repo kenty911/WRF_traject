@@ -16,23 +16,6 @@ import geocat.f2py
 
 # 設定ファイルの読み込み
 from config import s_tmp,e_tmp,path,output,s_lat,s_lon,s_height,ana_varis,time_delta,backward,core_num
-"""
-# config===================================================
-# 基本的にconfigファイルから読み込む
-s_tmp = datetime.datetime(2017,7,4,12,00)
-e_tmp = datetime.datetime(2017,7,5,00,00)
-path = f"./wrfout_d01_2017-07-04_06:00:00"
-output = f"back.csv"
-s_lat = np.arange(32, 33, 0.05)
-s_lon = np.arange(128, 129, 0.05)
-s_height = 2000 #(m) 
-ana_varis = {"QVAPOR":None}
-time_delta = 60 # second(秒単位)
-backward = True #後方流跡線解析にする場合はTrue
-# 後方流跡線解析の場合でもs_tmp<e_tmpで設定する
-core_num = 10 #実行コア数
-# ==========================================================
-"""
 
 class Point:
     def __init__(self, lat, lon, height, time) -> None:
