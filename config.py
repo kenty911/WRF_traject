@@ -8,9 +8,8 @@ import numpy as np
 # 基本的にこの部分のみを変更したらよい
 s_tmp = datetime.datetime(2017,7,4,21,00)
 e_tmp = datetime.datetime(2017,7,5, 3,00)
-# path = f"./wrfout_d01_2017-07-04_06:00:00"
-path = f"/home1/nakamura_kento/WRF/work/TR_Nkyushu_20170705/WDM7/wrfout_d03_2017-07-04_12:00:00"
-output = f"test03.csv"
+path = f"./wrfout_d01_2020-01-01_00:00:00"
+output = f"test01.csv"
 s_lat = np.arange(32.25, 33, 0.05)
 s_lon = np.arange(129.25, 129.5, 0.05)
 s_height = 500 #(m) 
