@@ -73,9 +73,28 @@ uv pip install wrf-python
 
 ### geocat-f2py について / About geocat-f2py
 
-`geocat-f2py` はコンパイルが必要なため、一部の環境ではインポートエラーが発生する可能性があります。システムに適切な Fortran コンパイラがインストールされていることを確認してください。
+`geocat-f2py` はコンパイル済みのバイナリとして配布されていますが、一部の環境では Fortran 拡張モジュールが正しくロードされない場合があります。この問題が発生した場合、システム依存関係をインストールした後、ソースからビルドすることで解決できる可能性があります。
 
-`geocat-f2py` requires compilation and may fail to import in some environments. Ensure you have proper Fortran compilers installed on your system.
+`geocat-f2py` is distributed as a pre-compiled binary, but in some environments the Fortran extension modules may not load correctly. If this issue occurs, it may be resolved by installing system dependencies and building from source.
+
+Linux/Ubuntu でのシステム依存関係のインストール:
+
+System dependencies installation on Linux/Ubuntu:
+
+```bash
+# Fortran コンパイラと netCDF ライブラリをインストール
+# Install Fortran compiler and netCDF libraries
+sudo apt-get update
+sudo apt-get install -y gfortran libnetcdf-dev libhdf5-dev
+
+# geocat-f2py をソースから再ビルド（必要な場合のみ）
+# Rebuild geocat-f2py from source (if needed)
+uv pip install --force-reinstall --no-binary geocat-f2py geocat-f2py
+```
+
+**注意**: 現在の GitHub Actions テスト環境では、geocat-f2py の Fortran 拡張モジュールが正しくインポートされないため、このテストはスキップされます。
+
+**Note**: In the current GitHub Actions test environment, the geocat-f2py Fortran extension modules do not import correctly, so this test will be skipped.
 
 ## 従来の方法 / Traditional Method
 

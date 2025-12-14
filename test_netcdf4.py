@@ -68,9 +68,19 @@ def test_matplotlib_import():
 
 def test_wrf_python_import():
     """Test that wrf-python can be imported (optional)."""
-    pytest.importorskip("wrf", reason="wrf-python not installed (optional)")
+    try:
+        import wrf
+        assert wrf.__version__ is not None
+    except ImportError:
+        pytest.skip("wrf-python not installed (optional, requires Python <3.12)")
 
 
 def test_geocat_f2py_import():
     """Test that geocat-f2py can be imported (optional)."""
-    pytest.importorskip("geocat.f2py", reason="geocat-f2py may have compilation issues (optional)")
+    try:
+        import geocat.f2py
+        # Try to access a module to ensure it's fully compiled
+        from geocat.f2py import rcm2rgrid
+        assert rcm2rgrid is not None
+    except (ImportError, ModuleNotFoundError) as e:
+        pytest.skip(f"geocat-f2py not fully functional (optional, may need Fortran compiler): {e}")
