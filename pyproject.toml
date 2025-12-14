@@ -13,9 +13,9 @@ dependencies = [
 ]
 
 # Note: wrf-python is also required but not included in this pyproject.toml
-# because it requires numpy.distutils which was removed in numpy 2.0
-# and is not compatible with Python 3.12+.
-# Install wrf-python separately in a Python <3.12 environment.
+# because it has build-time dependencies on numpy.distutils (removed in numpy 2.0)
+# and compilation requirements that are incompatible with Python 3.12+.
+# Install wrf-python separately in a compatible environment (Python <3.12 with numpy <2.0).
 
 [build-system]
 requires = ["setuptools>=61.0"]

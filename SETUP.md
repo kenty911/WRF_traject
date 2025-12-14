@@ -51,9 +51,9 @@ uv run python test_netcdf4.py
 
 ### wrf-python について / About wrf-python
 
-`wrf-python` は `numpy.distutils` に依存しており、これは numpy 2.0 で削除され、Python 3.12+ と互換性がありません。そのため、`pyproject.toml` には含まれていません。
+`wrf-python` はビルド時に `numpy.distutils` (numpy 2.0 で削除) に依存しており、Python 3.12+ との互換性問題があります。そのため、`pyproject.toml` には含まれていません。
 
-`wrf-python` depends on `numpy.distutils`, which was removed in numpy 2.0 and is not compatible with Python 3.12+. Therefore, it is not included in `pyproject.toml`.
+`wrf-python` has build-time dependencies on `numpy.distutils` (removed in numpy 2.0) and compilation requirements that are incompatible with Python 3.12+. Therefore, it is not included in `pyproject.toml`.
 
 Python 3.11 以下の環境で wrf-python が必要な場合は、別途インストールしてください:
 
