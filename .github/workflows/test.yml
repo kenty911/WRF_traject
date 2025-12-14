@@ -1,0 +1,115 @@
+name: Test netCDF4 and Dependencies
+
+on:
+  push:
+    branches: [ main, copilot/** ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gfortran libnetcdf-dev libhdf5-dev gcc g++ libnetcdff-dev pkg-config
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "latest"
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        uv sync --extra dev
+    
+    - name: Install build dependencies and constrain numpy
+      run: |
+        # Install numpy<2.0 first to ensure compatibility with both wrf-python and geocat-f2py
+        # Also install build tools needed for compilation
+        echo "=== Installing build dependencies ==="
+        uv pip install "numpy<2.0" "setuptools<70" "wheel"
+        uv pip install "Cython<3.0" "wrapt"
+        
+        echo "Python: $(uv run python --version)"
+        echo "numpy: $(uv run python -c 'import numpy; print(numpy.__version__)')"
+    
+    - name: Rebuild geocat-f2py with Fortran extensions
+      run: |
+        # geocat-f2py pre-built wheel may not include Fortran extensions
+        # Rebuild from source to ensure Fortran modules are compiled
+        # IMPORTANT: This must run AFTER numpy<2.0 is installed
+        echo "=== Rebuilding geocat-f2py ==="
+        
+        # Reinstall geocat-f2py from source without using binary wheel
+        # Use --no-build-isolation to use the already-installed numpy<2.0
+        uv pip install --force-reinstall --no-binary geocat-f2py --no-build-isolation geocat-f2py 2>&1 | tail -50
+        
+        # Verify installation with detailed error output
+        echo "=== Verifying geocat-f2py ==="
+        uv run python -c "
+import sys
+try:
+    import geocat.f2py
+    print('✓ geocat.f2py imported successfully')
+    try:
+        from geocat.f2py import rcm2rgrid
+        print('✓ geocat.f2py.rcm2rgrid available')
+    except Exception as e:
+        print(f'✗ geocat.f2py.rcm2rgrid not available: {e}')
+        print('  This is expected - Fortran extensions may not compile in all environments')
+except Exception as e:
+    print(f'✗ Failed to import geocat.f2py: {e}')
+    import traceback
+    traceback.print_exc()
+    print('  Tests will skip geocat-f2py')
+" || true
+    
+    - name: Install wrf-python (Python <3.12 only)
+      if: ${{ !startsWith(matrix.python-version, '3.12') && !startsWith(matrix.python-version, '3.13') }}
+      run: |
+        # wrf-python requires numpy.distutils (removed in numpy 2.0) for building
+        # numpy<2.0 is already installed from the previous step
+        
+        # Set environment variables for netCDF library paths
+        export NETCDF=$(nc-config --prefix)
+        export HDF5=$(nc-config --prefix)
+        export HDF5_DIR=/usr
+        export NETCDF4_DIR=$(nc-config --prefix)
+        export USE_NCCONFIG=1
+        
+        # Show configuration for debugging
+        echo "=== Build Environment ==="
+        echo "NETCDF: $NETCDF"
+        echo "Python: $(uv run python --version)"
+        echo "numpy: $(uv run python -c 'import numpy; print(numpy.__version__)')"
+        nc-config --all
+        
+        # Install wrf-python using the environment's packages
+        echo "=== Installing wrf-python ==="
+        uv pip install --no-build-isolation wrf-python
+    
+    - name: Run pytest
+      run: |
+        uv run pytest test_netcdf4.py -v --tb=short
+    
+    - name: Test summary
+      if: always()
+      run: |
+        echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "Python version: ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
