@@ -38,7 +38,7 @@ jobs:
         uv sync --extra dev
     
     - name: Install wrf-python (Python <3.12 only)
-      if: matrix.python-version != '3.12'
+      if: ${{ !startsWith(matrix.python-version, '3.12') && !startsWith(matrix.python-version, '3.13') }}
       run: |
         # wrf-python requires numpy.distutils and doesn't work with Python 3.12+
         uv pip install wrf-python
