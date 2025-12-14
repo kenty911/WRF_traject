@@ -1,0 +1,25 @@
+[project]
+name = "wrf-traject"
+version = "0.1.0"
+description = "WRF trajectory analysis tool for generating point cloud files"
+readme = "README.md"
+requires-python = ">=3.8,<3.12"
+dependencies = [
+    "numpy<2.0",
+    "netCDF4",
+    "geocat-f2py",
+    "pandas",
+    "matplotlib",
+]
+
+# Note: wrf-python is also required but not included in this pyproject.toml
+# because it requires numpy.distutils which was removed in numpy 2.0
+# and is not compatible with Python 3.12+.
+# Install wrf-python separately in a Python <3.12 environment.
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = []
