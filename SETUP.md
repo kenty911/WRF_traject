@@ -44,6 +44,13 @@ netCDF4 ライブラリが正しく動作することを確認するテスト:
 Test to verify netCDF4 library works correctly:
 
 ```bash
+# 開発用依存関係をインストール / Install dev dependencies
+uv sync --extra dev
+
+# pytest でテストを実行 / Run tests with pytest
+uv run pytest test_netcdf4.py -v
+
+# または直接実行も可能 / Or run directly (legacy)
 uv run python test_netcdf4.py
 ```
 

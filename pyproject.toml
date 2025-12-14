@@ -12,6 +12,11 @@ dependencies = [
     "matplotlib",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
 # Note: wrf-python is also required but not included in this pyproject.toml
 # because it has build-time dependencies on numpy.distutils (removed in numpy 2.0)
 # and compilation requirements that are incompatible with Python 3.12+.
