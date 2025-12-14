@@ -37,16 +37,27 @@ jobs:
       run: |
         uv sync --extra dev
     
+    - name: Install build dependencies and constrain numpy
+      run: |
+        # Install numpy<2.0 first to ensure compatibility with both wrf-python and geocat-f2py
+        # Also install build tools needed for compilation
+        echo "=== Installing build dependencies ==="
+        uv pip install "numpy<2.0" "setuptools<70" "wheel"
+        uv pip install "Cython<3.0" "wrapt"
+        
+        echo "Python: $(uv run python --version)"
+        echo "numpy: $(uv run python -c 'import numpy; print(numpy.__version__)')"
+    
     - name: Rebuild geocat-f2py with Fortran extensions
       run: |
         # geocat-f2py pre-built wheel may not include Fortran extensions
         # Rebuild from source to ensure Fortran modules are compiled
+        # IMPORTANT: This must run AFTER numpy<2.0 is installed
         echo "=== Rebuilding geocat-f2py ==="
-        echo "Python: $(uv run python --version)"
-        echo "numpy: $(uv run python -c 'import numpy; print(numpy.__version__)')"
         
         # Reinstall geocat-f2py from source without using binary wheel
-        uv pip install --force-reinstall --no-binary geocat-f2py geocat-f2py
+        # Use --no-build-isolation to use the already-installed numpy<2.0
+        uv pip install --force-reinstall --no-binary geocat-f2py --no-build-isolation geocat-f2py
         
         # Verify installation
         echo "=== Verifying geocat-f2py ==="
@@ -56,11 +67,7 @@ jobs:
       if: ${{ !startsWith(matrix.python-version, '3.12') && !startsWith(matrix.python-version, '3.13') }}
       run: |
         # wrf-python requires numpy.distutils (removed in numpy 2.0) for building
-        # Install in two steps to ensure numpy is available before Cython
-        # Step 1: Core build tools and numpy (Cython needs numpy at install time)
-        uv pip install "numpy<2.0" "setuptools<70" "wheel"
-        # Step 2: Cython and other dependencies
-        uv pip install "Cython<3.0" "wrapt"
+        # numpy<2.0 is already installed from the previous step
         
         # Set environment variables for netCDF library paths
         export NETCDF=$(nc-config --prefix)

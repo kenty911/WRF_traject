@@ -108,9 +108,14 @@ System dependencies installation and rebuild instructions:
 sudo apt-get update
 sudo apt-get install -y gfortran gcc g++ libnetcdf-dev libnetcdff-dev libhdf5-dev pkg-config
 
-# geocat-f2py をソースから再ビルド
-# Rebuild geocat-f2py from source
-uv pip install --force-reinstall --no-binary geocat-f2py geocat-f2py
+# ビルドツールと numpy<2.0 をインストール（重要）
+# Install build tools and numpy<2.0 (important)
+uv pip install "numpy<2.0" "setuptools<70" "wheel"
+uv pip install "Cython<3.0"
+
+# geocat-f2py をソースから再ビルド（--no-build-isolation で既存の numpy を使用）
+# Rebuild geocat-f2py from source (use --no-build-isolation to use existing numpy)
+uv pip install --force-reinstall --no-binary geocat-f2py --no-build-isolation geocat-f2py
 
 # インストール確認 / Verify installation
 uv run python -c "import geocat.f2py; from geocat.f2py import rcm2rgrid; print('Success')"
