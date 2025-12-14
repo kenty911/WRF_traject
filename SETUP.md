@@ -68,6 +68,7 @@ If you need wrf-python in a Python 3.11 or earlier environment, install it separ
 
 ```bash
 # システム依存関係をインストール / Install system dependencies
+sudo apt-get update
 sudo apt-get install -y gfortran gcc g++ libnetcdf-dev libhdf5-dev
 
 # Python 3.11 以下の環境で / In Python 3.11 or earlier environment
