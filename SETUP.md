@@ -72,8 +72,13 @@ sudo apt-get update
 sudo apt-get install -y gfortran gcc g++ libnetcdf-dev libnetcdff-dev libhdf5-dev pkg-config
 
 # Python 3.11 以下の環境で / In Python 3.11 or earlier environment
-# ビルドに必要な依存関係をインストール / Install build dependencies
+# ビルドに必要な依存関係をインストール (2段階で実行)
+# Install build dependencies (in two steps)
+# ステップ1: numpy を先にインストール (Cython が numpy に依存)
+# Step 1: Install numpy first (Cython depends on numpy)
 uv pip install "numpy<2.0" "setuptools<70" "wheel"
+# ステップ2: Cython と他の依存関係
+# Step 2: Cython and other dependencies
 uv pip install "Cython<3.0" "wrapt"
 
 # 環境変数を設定 / Set environment variables

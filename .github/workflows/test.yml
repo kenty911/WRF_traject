@@ -41,8 +41,10 @@ jobs:
       if: ${{ !startsWith(matrix.python-version, '3.12') && !startsWith(matrix.python-version, '3.13') }}
       run: |
         # wrf-python requires numpy.distutils (removed in numpy 2.0) for building
-        # First, ensure we have build tools and numpy with distutils
+        # Install in two steps to ensure numpy is available before Cython
+        # Step 1: Core build tools and numpy (Cython needs numpy at install time)
         uv pip install "numpy<2.0" "setuptools<70" "wheel"
+        # Step 2: Cython and other dependencies
         uv pip install "Cython<3.0" "wrapt"
         
         # Set environment variables for netCDF library paths
@@ -62,7 +64,6 @@ jobs:
         # Install wrf-python using the environment's packages
         echo "=== Installing wrf-python ==="
         uv pip install --no-build-isolation wrf-python
-      continue-on-error: false
     
     - name: Run pytest
       run: |
