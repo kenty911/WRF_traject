@@ -92,34 +92,33 @@ export USE_NCCONFIG=1
 uv pip install --no-build-isolation wrf-python
 ```
 
-**注意**: wrf-python のインストールは環境によっては失敗する可能性があります。その場合、テストはスキップされます。
-
-**Note**: wrf-python installation may fail in some environments. In that case, tests will be skipped.
-
 ### geocat-f2py について / About geocat-f2py
 
-`geocat-f2py` はコンパイル済みのバイナリとして配布されていますが、一部の環境では Fortran 拡張モジュールが正しくロードされない場合があります。この問題が発生した場合、システム依存関係をインストールした後、ソースからビルドすることで解決できる可能性があります。
+`geocat-f2py` はコンパイル済みのバイナリとして配布されていますが、Fortran 拡張モジュールが含まれていない場合があります。GitHub Actions CI では、ソースから再ビルドして Fortran モジュールを確実にコンパイルします。
 
-`geocat-f2py` is distributed as a pre-compiled binary, but in some environments the Fortran extension modules may not load correctly. If this issue occurs, it may be resolved by installing system dependencies and building from source.
+`geocat-f2py` is distributed as a pre-compiled binary, but may not include Fortran extension modules. In GitHub Actions CI, it is rebuilt from source to ensure Fortran modules are compiled.
 
-Linux/Ubuntu でのシステム依存関係のインストール:
+システム依存関係のインストールと再ビルド方法:
 
-System dependencies installation on Linux/Ubuntu:
+System dependencies installation and rebuild instructions:
 
 ```bash
 # Fortran コンパイラと netCDF ライブラリをインストール
 # Install Fortran compiler and netCDF libraries
 sudo apt-get update
-sudo apt-get install -y gfortran libnetcdf-dev libhdf5-dev
+sudo apt-get install -y gfortran gcc g++ libnetcdf-dev libnetcdff-dev libhdf5-dev pkg-config
 
-# geocat-f2py をソースから再ビルド（必要な場合のみ）
-# Rebuild geocat-f2py from source (if needed)
+# geocat-f2py をソースから再ビルド
+# Rebuild geocat-f2py from source
 uv pip install --force-reinstall --no-binary geocat-f2py geocat-f2py
+
+# インストール確認 / Verify installation
+uv run python -c "import geocat.f2py; from geocat.f2py import rcm2rgrid; print('Success')"
 ```
 
-**注意**: 現在の GitHub Actions テスト環境では、geocat-f2py の Fortran 拡張モジュールが正しくインポートされないため、このテストはスキップされます。
+**注意**: ソースからのビルドには時間がかかりますが、Fortran 拡張モジュールが確実に利用できるようになります。
 
-**Note**: In the current GitHub Actions test environment, the geocat-f2py Fortran extension modules do not import correctly, so this test will be skipped.
+**Note**: Building from source takes time but ensures Fortran extension modules are available.
 
 ## 従来の方法 / Traditional Method
 

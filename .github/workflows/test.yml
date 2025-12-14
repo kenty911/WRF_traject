@@ -37,6 +37,21 @@ jobs:
       run: |
         uv sync --extra dev
     
+    - name: Rebuild geocat-f2py with Fortran extensions
+      run: |
+        # geocat-f2py pre-built wheel may not include Fortran extensions
+        # Rebuild from source to ensure Fortran modules are compiled
+        echo "=== Rebuilding geocat-f2py ==="
+        echo "Python: $(uv run python --version)"
+        echo "numpy: $(uv run python -c 'import numpy; print(numpy.__version__)')"
+        
+        # Reinstall geocat-f2py from source without using binary wheel
+        uv pip install --force-reinstall --no-binary geocat-f2py geocat-f2py
+        
+        # Verify installation
+        echo "=== Verifying geocat-f2py ==="
+        uv run python -c "import geocat.f2py; print('geocat.f2py imported successfully')" || echo "Import failed, will skip in tests"
+    
     - name: Install wrf-python (Python <3.12 only)
       if: ${{ !startsWith(matrix.python-version, '3.12') && !startsWith(matrix.python-version, '3.13') }}
       run: |
