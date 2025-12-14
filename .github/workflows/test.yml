@@ -42,13 +42,12 @@ jobs:
       run: |
         # wrf-python requires numpy.distutils (removed in numpy 2.0) for building
         # Install all build dependencies
-        uv pip install "numpy<2.0" "Cython" "setuptools" "wrapt" "six"
+        uv pip install "numpy<2.0" "Cython" "setuptools" "wrapt"
         # Set environment variables for netCDF library paths
         export NETCDF=$(nc-config --prefix)
         export HDF5_DIR=/usr
-        export NETCDF_PREFIX=$(nc-config --prefix)
         export USE_NCCONFIG=1
-        # Show what we have
+        # Show what we have for debugging
         echo "NETCDF: $NETCDF"
         echo "nc-config --all:"
         nc-config --all || true
