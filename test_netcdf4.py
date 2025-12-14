@@ -26,9 +26,9 @@ def test_netcdf4_create_file():
         from netCDF4 import Dataset
         import numpy as np
         
-        # Create a temporary file
-        with tempfile.NamedTemporaryFile(suffix='.nc', delete=False) as tmp_file:
-            tmp_path = tmp_file.name
+        # Create a temporary file that gets deleted automatically
+        fd, tmp_path = tempfile.mkstemp(suffix='.nc')
+        os.close(fd)
         
         try:
             # Create a netCDF file
@@ -60,26 +60,37 @@ def test_netcdf4_create_file():
 
 def test_all_dependencies():
     """Test that all required dependencies can be imported."""
-    dependencies = {
-        'numpy': ('numpy', True),
-        'netCDF4': ('netCDF4', True),
-        'pandas': ('pandas', True),
-        'matplotlib': ('matplotlib', True),
-        'wrf': ('wrf-python', False),  # Not included due to Python 3.12 incompatibility
-        'geocat.f2py': ('geocat-f2py', False),  # May have compilation issues
+    # Core dependencies that must work
+    core_dependencies = {
+        'numpy': 'numpy',
+        'netCDF4': 'netCDF4',
+        'pandas': 'pandas',
+        'matplotlib': 'matplotlib',
+    }
+    
+    # Dependencies that may fail due to compilation or compatibility issues
+    optional_dependencies = {
+        'wrf': 'wrf-python',  # Not included due to Python 3.12 incompatibility
+        'geocat.f2py': 'geocat-f2py',  # May have Fortran compilation issues in some environments
     }
     
     required_success = True
-    print("\nTesting all dependencies:")
-    for module_name, (package_name, required) in dependencies.items():
+    print("\nTesting core dependencies:")
+    for module_name, package_name in core_dependencies.items():
         try:
             __import__(module_name)
             print(f"✓ {package_name} import successful")
         except ImportError as e:
-            status = "✗" if required else "⚠"
-            print(f"{status} {package_name} import failed: {e}")
-            if required:
-                required_success = False
+            print(f"✗ {package_name} import failed: {e}")
+            required_success = False
+    
+    print("\nTesting optional dependencies:")
+    for module_name, package_name in optional_dependencies.items():
+        try:
+            __import__(module_name)
+            print(f"✓ {package_name} import successful")
+        except ImportError as e:
+            print(f"⚠ {package_name} import failed (optional): {e}")
     
     return required_success
 

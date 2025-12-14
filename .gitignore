@@ -39,9 +39,8 @@ wheels/
 .DS_Store
 Thumbs.db
 
-# Project specific
+# Project specific output files
 *.nc
 *.csv
-*.txt
-!SETUP.md
-!README.md
+output*.txt
+test*.txt
