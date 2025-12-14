@@ -23,7 +23,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gfortran libnetcdf-dev libhdf5-dev gcc g++
+        sudo apt-get install -y gfortran libnetcdf-dev libhdf5-dev gcc g++ libnetcdff-dev pkg-config
     
     - name: Install uv
       uses: astral-sh/setup-uv@v5
@@ -41,8 +41,11 @@ jobs:
       if: ${{ !startsWith(matrix.python-version, '3.12') && !startsWith(matrix.python-version, '3.13') }}
       run: |
         # wrf-python requires numpy.distutils (removed in numpy 2.0) for building
-        # First ensure we have numpy<2.0 with distutils, Cython, and setuptools
-        uv pip install "numpy<2.0" "Cython" "setuptools"
+        # Install all build dependencies including wrapt
+        uv pip install "numpy<2.0" "Cython" "setuptools" "wrapt"
+        # Set environment variables for netCDF library paths
+        export NETCDF=$(nc-config --prefix)
+        export HDF5_DIR=/usr
         # Install wrf-python without build isolation to use installed numpy
         uv pip install --no-build-isolation wrf-python
       continue-on-error: false
