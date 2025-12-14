@@ -73,15 +73,18 @@ sudo apt-get install -y gfortran gcc g++ libnetcdf-dev libnetcdff-dev libhdf5-de
 
 # Python 3.11 以下の環境で / In Python 3.11 or earlier environment
 # ビルドに必要な依存関係をインストール / Install build dependencies
-uv pip install "numpy<2.0" "Cython" "setuptools" "wrapt"
+uv pip install "numpy<2.0" "setuptools<70" "wheel"
+uv pip install "Cython<3.0" "wrapt"
 
 # 環境変数を設定 / Set environment variables
 export NETCDF=$(nc-config --prefix)
+export HDF5=$(nc-config --prefix)
 export HDF5_DIR=/usr
+export NETCDF4_DIR=$(nc-config --prefix)
 export USE_NCCONFIG=1
 
-# wrf-python をインストール (失敗する場合もあります) / Install wrf-python (may fail)
-uv pip install --no-build-isolation wrf-python || uv pip install wrf-python
+# wrf-python をインストール / Install wrf-python
+uv pip install --no-build-isolation wrf-python
 ```
 
 **注意**: wrf-python のインストールは環境によっては失敗する可能性があります。その場合、テストはスキップされます。

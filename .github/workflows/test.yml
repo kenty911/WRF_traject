@@ -41,20 +41,28 @@ jobs:
       if: ${{ !startsWith(matrix.python-version, '3.12') && !startsWith(matrix.python-version, '3.13') }}
       run: |
         # wrf-python requires numpy.distutils (removed in numpy 2.0) for building
-        # Install all build dependencies
-        uv pip install "numpy<2.0" "Cython" "setuptools" "wrapt"
+        # First, ensure we have build tools and numpy with distutils
+        uv pip install "numpy<2.0" "setuptools<70" "wheel"
+        uv pip install "Cython<3.0" "wrapt"
+        
         # Set environment variables for netCDF library paths
         export NETCDF=$(nc-config --prefix)
+        export HDF5=$(nc-config --prefix)
         export HDF5_DIR=/usr
+        export NETCDF4_DIR=$(nc-config --prefix)
         export USE_NCCONFIG=1
-        # Show what we have for debugging
+        
+        # Show configuration for debugging
+        echo "=== Build Environment ==="
         echo "NETCDF: $NETCDF"
-        echo "nc-config --all:"
-        nc-config --all || true
-        # Try installing wrf-python with verbose output
-        uv pip install --no-build-isolation --verbose wrf-python || \
-        uv pip install --verbose wrf-python
-      continue-on-error: true
+        echo "Python: $(uv run python --version)"
+        echo "numpy: $(uv run python -c 'import numpy; print(numpy.__version__)')"
+        nc-config --all
+        
+        # Install wrf-python using the environment's packages
+        echo "=== Installing wrf-python ==="
+        uv pip install --no-build-isolation wrf-python
+      continue-on-error: false
     
     - name: Run pytest
       run: |
