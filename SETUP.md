@@ -67,8 +67,15 @@ Python 3.11 以下の環境で wrf-python が必要な場合は、別途イン�
 If you need wrf-python in a Python 3.11 or earlier environment, install it separately:
 
 ```bash
+# システム依存関係をインストール / Install system dependencies
+sudo apt-get install -y gfortran gcc g++ libnetcdf-dev libhdf5-dev
+
 # Python 3.11 以下の環境で / In Python 3.11 or earlier environment
-uv pip install wrf-python
+# ビルドに必要な依存関係をインストール / Install build dependencies
+uv pip install "numpy<2.0" "Cython" "setuptools"
+
+# wrf-python をインストール / Install wrf-python
+uv pip install --no-build-isolation wrf-python
 ```
 
 ### geocat-f2py について / About geocat-f2py
